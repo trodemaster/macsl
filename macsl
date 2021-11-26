@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+shopt -s nullglob nocaseglob
+
+# modern bash version check
+! [ "${BASH_VERSINFO:-0}" -ge 4 ] && echo "This script requires bash v4 or later" && exit 1
+
+# Define global variables and set defaults
+VM_BOOT=0
+LAUNCHD_SETUP=0
+VM_SHUTDOWN=0
+VM_PATH=0
+VM_IP=0
+
+# print out usage
+usage() {
+  cat <<EOF
+USAGE: ./macsl -b -v ~/vm/linux.vmx
+OPTIONS:
+   -l    Setup launchd
+   -b    Boot up the VM
+   -s    Shutdown the VM
+   -v    Path to vmx file
+   -i    Output the VM IP
+   -h    Help
+EOF
+  exit 0
+}
+
+# process options and arguments
+while getopts "lbsv:ih" OPTION; do
+  case $OPTION in
+  l) LAUNCHD_SETUP=1 ;;
+  b) VM_BOOT=1 ;;
+  s) VM_SHUTDOWN=1 ;;
+  v) VM_PATH="$OPTARG" ;;
+  i) VM_IP=1 ;;
+  h) usage && exit 0 ;;
+  *) usage && exit 0 ;;
+  esac
+done
+
+# catch no options
+if  [[ $(($LAUNCHD_SETUP + $VM_BOOT + $VM_SHUTDOWN + $VM_IP)) == "0" ]]; then
+  usage && exit 0
+fi
+
+# path to self and parent dir
+SCRIPT=$(realpath "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+
+# functions for doing the stuff
+launchd_setup() {
+  echo "LAUNCHD SETUP"
+}
+
+vm_boot() {
+  echo "VM BOOT"
+}
+
+vm_shutdown() {
+  echo "VM SHUTDOWN"
+}
+
+vm_path() {
+  # echo "VM PATH: $VM_PATH"
+  if [[ ! -f "$VM_PATH" ]]; then
+    echo "The path $VM_PATH is not valid"
+    usage
+    exit 1
+  fi
+  if [[ "${VM_PATH#*.}" != "vmx" ]]; then
+    echo "The file $(basename $VM_PATH) does not have a .vmx extention"
+    usage
+    exit 1
+  fi
+}
+
+vm_ip() {
+  echo "VM IP"
+}
+
+# script flow logic
+if [[ $VM_PATH != 0 ]]; then
+  echo "running vm path"
+  vm_path
+fi
+
+if [[ $LAUNCHD_SETUP == 1 ]]; then
+  launchd_setup
+fi
+
+if [[ $VM_BOOT == 1 ]]; then
+  vm_boot
+fi
+
+if [[ $VM_SHUTDOWN == 1 ]]; then
+  vm_shutdown
+fi
+
+if [[ $VM_IP == 1 ]]; then
+  vm_ip
+fi
+
+echo "End of Line..."
+exit 0
