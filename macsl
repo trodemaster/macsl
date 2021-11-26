@@ -13,6 +13,11 @@ VM_SHUTDOWN=0
 VM_PATH=0
 VM_IP=0
 
+# read defaults from config
+if [[ -f "${HOME}/.macsl" ]]; then
+  source "${HOME}/.macsl"
+fi
+
 # print out usage
 usage() {
   cat <<EOF
@@ -42,7 +47,7 @@ while getopts "lbsv:ih" OPTION; do
 done
 
 # catch no options
-if  [[ $(($LAUNCHD_SETUP + $VM_BOOT + $VM_SHUTDOWN + $VM_IP)) == "0" ]]; then
+if [[ $(($LAUNCHD_SETUP + $VM_BOOT + $VM_SHUTDOWN + $VM_IP)) == "0" ]]; then
   usage && exit 0
 fi
 
@@ -57,10 +62,12 @@ launchd_setup() {
 
 vm_boot() {
   echo "VM BOOT"
+  vmrun start "$VM_PATH"
 }
 
 vm_shutdown() {
   echo "VM SHUTDOWN"
+  vmrun stop "$VM_PATH"
 }
 
 vm_path() {
@@ -70,7 +77,8 @@ vm_path() {
     usage
     exit 1
   fi
-  if [[ "${VM_PATH#*.}" != "vmx" ]]; then
+
+  if ! [[ "$VM_PATH" =~ .*\.vmx ]]; then
     echo "The file $(basename $VM_PATH) does not have a .vmx extention"
     usage
     exit 1
@@ -79,6 +87,7 @@ vm_path() {
 
 vm_ip() {
   echo "VM IP"
+  vmrun getGuestIPAddress $VM_PATH
 }
 
 # script flow logic
