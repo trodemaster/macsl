@@ -70,6 +70,11 @@ fi
 # functions for doing the stuff
 launchd_setup() {
   echo "LAUNCHD SETUP"
+  if launchctl list com.blakegarner.macsl >/dev/null 2>&1; then
+    echo "Starting com.blakegarner.macsl launchd service"
+    launchctl bootout gui/$UID/com.blakegarner.macsl
+  fi
+echo "Writing launchd plist to ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist"
   tee ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist >/dev/null <<-PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -80,7 +85,7 @@ launchd_setup() {
     <key>LAUNCHD_MODE</key>
     <string>1</string>
     <key>PATH</key>
-    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/go/bin:/usr/local/share/dotnet:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/local/sbin</string>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Library/Apple/usr/bin</string>
   </dict>
   <key>KeepAlive</key>
   <dict>
@@ -92,6 +97,7 @@ launchd_setup() {
   <key>ProgramArguments</key>
   <array>
     <string>$HOME/code/macsl/macsl</string>
+    <string>-b</string>
     <string>-v</string>
     <string>$VM_PATH</string>
   </array>
@@ -104,7 +110,9 @@ launchd_setup() {
 </dict>
 </plist>
 PLIST
-  launchctl load -w ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist
+  echo "Starting com.blakegarner.macsl launchd service"
+  launchctl bootstrap user/$UID "${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist"
+  launchctl list com.blakegarner.macsl
 }
 
 # launchd mode
@@ -137,7 +145,7 @@ vm_reboot() {
 
 vm_shutdown() {
   echo "VM SHUTDOWN"
-  vmrun stop "$VM_PATH" soft
+  vmrun stop "$VM_PATH" hard
 }
 
 vm_path() {
@@ -161,7 +169,7 @@ vm_ip() {
 }
 
 # script flow logic
-if [[ $LAUNCHD_MODE != 0 ]]; then
+if [[ $LAUNCHD_MODE == 1 ]]; then
   echo "Launchd Mode"
   launchd_mode
 fi
