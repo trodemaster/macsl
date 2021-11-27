@@ -70,34 +70,37 @@ fi
 # functions for doing the stuff
 launchd_setup() {
   echo "LAUNCHD SETUP"
+  tee -a ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist >/dev/null <<-PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>EnvironmentVariables</key>
-	<dict>
+  <key>EnvironmentVariables</key>
+  <dict>
     <key>LAUNCHD_MODE</key>
     <string>1</string>
-		<key>PATH</key>
-		<string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/go/bin:/usr/local/share/dotnet:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/local/sbin</string>
-	</dict>
-	<key>KeepAlive</key>
-	<dict>
-		<key>SuccessfulExit</key>
-		<true/>
-	</dict>
-	<key>Label</key>
-	<string>com.blakegarner.macsl</string>
-	<key>ProgramArguments</key>
-	<array>
-		<string>/Users/blake/code/macsl/macsl</string>
-	</array>
-	<key>RunAtLoad</key>
-	<true/>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/go/bin:/usr/local/share/dotnet:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/local/sbin</string>
+  </dict>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <true/>
+  </dict>
+  <key>Label</key>
+  <string>com.blakegarner.macsl</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/blake/code/macsl/macsl</string>
+    <string>-v</string>
+    <string>$VM_PATH</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
 </dict>
 </plist>
-
-
+PLIST
+echo launchctl load -w ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist
 }
 
 # launchd mode
