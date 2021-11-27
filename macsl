@@ -98,7 +98,7 @@ launchd_setup() {
   <key>RunAtLoad</key>
   <true/>
   <key>StandardOutPath</key>
-  <string>/Users/blake/Library/Logs/com.blakegarner.macsl.log</string>
+  <string>$HOME/Library/Logs/com.blakegarner.macsl.log</string>
   <key>StandardErrorPath</key>
   <string>$HOME/Library/Logs/com.blakegarner.macsl.log</string>
 </dict>
