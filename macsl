@@ -91,16 +91,20 @@ launchd_setup() {
   <string>com.blakegarner.macsl</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/blake/code/macsl/macsl</string>
+    <string>$HOME/code/macsl/macsl</string>
     <string>-v</string>
     <string>$VM_PATH</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/blake/Library/Logs/com.blakegarner.macsl.log</string>
+  <key>StandardErrorPath</key>
+  <string>$HOME/Library/Logs/com.blakegarner.macsl.log</string>
 </dict>
 </plist>
 PLIST
-echo launchctl load -w ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist
+  launchctl load -w ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist
 }
 
 # launchd mode
