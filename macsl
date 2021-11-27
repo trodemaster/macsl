@@ -64,12 +64,40 @@ if [[ $(($LAUNCHD_SETUP + $VM_BOOT + $VM_SHUTDOWN + $VM_IP + $VM_REBOOT + $LAUNC
 fi
 
 # path to self and parent dir
-SCRIPT=$(realpath "$0")
-SCRIPTPATH=$(dirname "$SCRIPT")
+#SCRIPT=$(realpath "$0")
+#SCRIPTPATH=$(dirname "$SCRIPT")
 
 # functions for doing the stuff
 launchd_setup() {
   echo "LAUNCHD SETUP"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+    <key>LAUNCHD_MODE</key>
+    <string>1</string>
+		<key>PATH</key>
+		<string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/go/bin:/usr/local/share/dotnet:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/local/sbin</string>
+	</dict>
+	<key>KeepAlive</key>
+	<dict>
+		<key>SuccessfulExit</key>
+		<true/>
+	</dict>
+	<key>Label</key>
+	<string>com.blakegarner.macsl</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/blake/code/macsl/macsl</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
+</plist>
+
+
 }
 
 # launchd mode
