@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/local/bin/bash
 IFS=$'\n\t'
 shopt -s nullglob nocaseglob
 
@@ -67,6 +67,13 @@ fi
 #SCRIPT=$(realpath "$0")
 #SCRIPTPATH=$(dirname "$SCRIPT")
 
+# fusion path
+if [[ -e "/Applications/VMware Fusion Tech Preview.app/Contents/Public" ]]; then
+  FUSION_PATH="/Applications/VMware Fusion Tech Preview.app/Contents/Public"
+else
+  FUSION_PATH="/Applications/VMware Fusion.app/Contents/Public"
+fi
+
 # functions for doing the stuff
 launchd_setup() {
   echo "LAUNCHD SETUP"
@@ -74,7 +81,7 @@ launchd_setup() {
     echo "Starting com.blakegarner.macsl launchd service"
     launchctl bootout gui/$UID/com.blakegarner.macsl
   fi
-echo "Writing launchd plist to ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist"
+  echo "Writing launchd plist to ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist"
   tee ${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist >/dev/null <<-PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -85,7 +92,7 @@ echo "Writing launchd plist to ${HOME}/Library/LaunchAgents/com.blakegarner.macs
     <key>LAUNCHD_MODE</key>
     <string>1</string>
     <key>PATH</key>
-    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Library/Apple/usr/bin</string>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/Library/Apple/usr/bin:$FUSION_PATH</string>
   </dict>
   <key>KeepAlive</key>
   <dict>
@@ -111,7 +118,7 @@ echo "Writing launchd plist to ${HOME}/Library/LaunchAgents/com.blakegarner.macs
 </plist>
 PLIST
   echo "Starting com.blakegarner.macsl launchd service"
-  launchctl bootstrap user/$UID "${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist"
+  launchctl bootstrap gui/$UID "${HOME}/Library/LaunchAgents/com.blakegarner.macsl.plist"
   launchctl list com.blakegarner.macsl
 }
 
