@@ -172,6 +172,9 @@ vm_boot() {
       tmux new-session -d -s macsl -n macsl
     fi
 
+    # check if existing qemu is running in the macsl session
+    # only start a if one isn't already running. 
+
     # start qemu in a tmux session
     tmux respawn-window -t macsl -c "$VM_PATH" -k "$QEMU_CMD"
 
