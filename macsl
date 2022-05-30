@@ -2,31 +2,54 @@
 IFS=$'\n\t'
 shopt -s nullglob nocaseglob
 
-# read env vars
+# modern bash version check
+! [ "${BASH_VERSINFO:-0}" -ge 4 ] && echo "This script requires bash v4 or later" && exit 1
+
+# read defaults from config
+if [[ -f "${HOME}/.macsl" ]]; then
+  source "${HOME}/.macsl"
+fi
+
+# Check for launchd mode
 if [[ $LAUNCHD_MODE == 1 ]]; then
   echo "Launchd Mode enabled"
 else
   LAUNCHD_MODE=0
 fi
 
+# check for vm_path
+if [[ -v ${VM_PATH} ]]; then
+  VM_PATH="$HOME/vm/macsl"
+  echo "VM_PATH set to default $VM_PATH"
+else
+  echo "VM_PATH is $VM_PATH"
+fi
+
+# check for hypervisor
+if [[ -v ${VM_HYPERVISOR} ]]; then
+  echo "VM_HYPERVISOR set to default qemu"
+  VM_HYPERVISOR="qemu" # qemu vmware
+else
+  echo "VM_HYPERVISOR is $VM_HYPERVISOR"
+fi
+
+# check for qemu_cmd
+if [[ -v ${QEMU_CMD} ]]; then
+  QEMU_CMD="echo \"qemu cmd unset in ~/.macsl config file\""
+  echo "QEMU_CMD $QEMU_CMD"
+else
+  echo "QEMU_CMD is $QEMU_CMD"
+fi
+
 # Set strict mode after reading env vars
 set -euo pipefail
-
-# modern bash version check
-! [ "${BASH_VERSINFO:-0}" -ge 4 ] && echo "This script requires bash v4 or later" && exit 1
 
 # Define global variables and set defaults
 VM_BOOT=0
 LAUNCHD_SETUP=0
 VM_REBOOT=0
 VM_SHUTDOWN=0
-VM_PATH=0
 VM_IP=0
-
-# read defaults from config
-if [[ -f "${HOME}/.macsl" ]]; then
-  source "${HOME}/.macsl"
-fi
 
 # print out usage
 usage() {
@@ -142,32 +165,54 @@ launchd_mode() {
 
 vm_boot() {
   echo "VM BOOT"
-  vmrun start "$VM_PATH" nogui
+  if [[ $VM_HYPERVISOR == "qemu" ]]; then
+
+    # tmux new session called macsl to host the qemu session
+    if ! (tmux has-session -t macsl 2>/dev/null); then
+      tmux new-session -d -s macsl -n macsl
+    fi
+
+    # start qemu in a tmux session
+    tmux respawn-window -t macsl -c "$VM_PATH" -k "$QEMU_CMD"
+
+  elif [[ $VM_HYPERVISOR == "vmware" ]]; then
+    vmrun start "$VM_PATH" nogui
+  fi
 }
 
 vm_reboot() {
   echo "VM REBOOT"
-  vmrun reset "$VM_PATH" hard
+  if [[ $VM_HYPERVISOR == "qemu" ]]; then
+    tmux send-keys -t macsl system_reset Enter
+  fi
+  if [[ $VM_HYPERVISOR == "vmware" ]]; then
+    vmrun reset "$VM_PATH" hard
+  fi
 }
 
 vm_shutdown() {
   echo "VM SHUTDOWN"
-  vmrun stop "$VM_PATH" hard
+    if [[ $VM_HYPERVISOR == "qemu" ]]; then
+    tmux send-keys -t macsl system_powerdown Enter
+  fi
+  if [[ $VM_HYPERVISOR == "vmware" ]]; then
+    vmrun stop "$VM_PATH" hard
+  fi
 }
 
 vm_path() {
   # echo "VM PATH: $VM_PATH"
-  if [[ ! -f "$VM_PATH" ]]; then
+  if [[ ! -d "$VM_PATH" ]]; then
     echo "The path $VM_PATH is not valid"
     usage
     exit 1
   fi
 
-  if ! [[ "$VM_PATH" =~ .*\.vmx ]]; then
-    echo "The file $(basename $VM_PATH) does not have a .vmx extention"
-    usage
-    exit 1
-  fi
+  #  if ! [[ "$VM_PATH" =~ .*\.vmx ]]; then
+  #    echo "The file $(basename $VM_PATH) does not have a .vmx extention"
+  #    usage
+  #    exit 1
+  #  fi
 }
 
 vm_ip() {
