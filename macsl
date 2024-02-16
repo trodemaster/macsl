@@ -25,22 +25,6 @@ else
   echo "VM_PATH is $VM_PATH"
 fi
 
-# check for hypervisor
-if [[ -v ${VM_HYPERVISOR} ]]; then
-  echo "VM_HYPERVISOR set to default qemu"
-  VM_HYPERVISOR="qemu" # qemu vmware
-else
-  echo "VM_HYPERVISOR is $VM_HYPERVISOR"
-fi
-
-# check for qemu_cmd
-if [[ -v ${QEMU_CMD} ]]; then
-  QEMU_CMD="echo \"qemu cmd unset in ~/.macsl config file\""
-  echo "QEMU_CMD $QEMU_CMD"
-else
-  echo "QEMU_CMD is $QEMU_CMD"
-fi
-
 # Set strict mode after reading env vars
 set -euo pipefail
 
@@ -62,6 +46,7 @@ OPTIONS:
    -s    Shutdown the VM
    -v    Path to vmx file
    -i    Output the VM IP
+   -c    start ssh session?? not implemented
    -h    Help
 EOF
   exit 0
@@ -165,57 +150,38 @@ launchd_mode() {
 
 vm_boot() {
   echo "VM BOOT"
-  if [[ $VM_HYPERVISOR == "qemu" ]]; then
-
-    # tmux new session called macsl to host the qemu session
-    if ! (tmux has-session -t macsl 2>/dev/null); then
-      tmux new-session -d -s macsl -n macsl
-    fi
-
-    # check if existing qemu is running in the macsl session
-    # only start a if one isn't already running. 
-
-    # start qemu in a tmux session
-    tmux respawn-window -t macsl -c "$VM_PATH" -k "$QEMU_CMD"
-
-  elif [[ $VM_HYPERVISOR == "vmware" ]]; then
-    vmrun start "$VM_PATH" nogui
-  fi
+  echo "vmrun start $VM_PATH nogui"
+  vmrun start "$VM_PATH" nogui
 }
 
 vm_reboot() {
   echo "VM REBOOT"
-  if [[ $VM_HYPERVISOR == "qemu" ]]; then
-    tmux send-keys -t macsl system_reset Enter
-  fi
-  if [[ $VM_HYPERVISOR == "vmware" ]]; then
-    vmrun reset "$VM_PATH" hard
-  fi
+  vmrun reset "$VM_PATH" hard
 }
 
 vm_shutdown() {
   echo "VM SHUTDOWN"
-    if [[ $VM_HYPERVISOR == "qemu" ]]; then
-    tmux send-keys -t macsl system_powerdown Enter
-  fi
-  if [[ $VM_HYPERVISOR == "vmware" ]]; then
-    vmrun stop "$VM_PATH" hard
-  fi
+  vmrun stop "$VM_PATH" hard
 }
 
 vm_path() {
-  # echo "VM PATH: $VM_PATH"
-  if [[ ! -d "$VM_PATH" ]]; then
+  if [[ -e "$VM_PATH" ]]; then
+    echo "VM PATH: $VM_PATH"
+else
     echo "The path $VM_PATH is not valid"
     usage
     exit 1
   fi
 
-  #  if ! [[ "$VM_PATH" =~ .*\.vmx ]]; then
-  #    echo "The file $(basename $VM_PATH) does not have a .vmx extention"
-  #    usage
-  #    exit 1
-  #  fi
+  if ! [[ "$VM_PATH" =~ .*\.vmx ]]; then
+    echo "The file $(basename $VM_PATH) does not have a .vmx extention"
+    usage
+    exit 1
+  fi
+}
+
+vm_ssh() {
+  ssh macsl
 }
 
 vm_ip() {

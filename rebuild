@@ -1,0 +1,4 @@
+#!/opt/local/bin/bash
+limactl factory-reset macsl
+cp ~/code/macsl/macsl.yaml ~/.lima/macsl/lima.yaml
+limactl start macsl
