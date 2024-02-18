@@ -1,5 +1,5 @@
 # macsl
-This is my repo for managing a CLI Linux instance that runs alongside macOS. Mac Services for Linux. With the transition to Applesilicon processors, the hypervisor tooling has changed a few times. Qemu, VMware Fusion, UTM and now Lima. 
+This is my repo for managing a CLI Linux instance that runs alongside macOS. Mac Services for Linux. With the transition to Applesilicon processors, the hypervisor tooling has changed a few times. Qemu, VMware Fusion, UTM and now Lima. The config in macsl.yaml uses virtualization.framwork hypervisor components only. 
 
 Lima details https://lima-vm.io
 
@@ -13,6 +13,11 @@ sudo port install lima
 From the root of this repo run this command
 ```
 limactl create --name=macsl macsl.yaml
+```
+
+# SSH into the linux VM
+```
+limactl shell macsl
 ```
 
 # rebuild
