@@ -50,11 +50,12 @@ provision:
     # NOTE: you may remove the lines below, if you prefer to use rootful docker, not rootless
     systemctl disable --now docker
     apt-get install -y uidmap dbus-user-session
+# These chezmoi line installes my dotfiles config with a lot of customizations
+# https://github.com/trodemaster/dotfiles
 - mode: user
   script: |
     #!/usr/bin/bash
     sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply trodemaster
-    touch /var/run/.chezmoi-initialized
 - mode: user
   script: |
     #!/bin/bash
@@ -74,9 +75,6 @@ probes:
       echo >&2 "rootlesskit (used by rootless docker) is not running"
       exit 1
     fi
-  #    while [ ! -f /var/run/.chezmoi-initialized ]; do
-  #      sleep 1
-  #    done
   hint: See "/var/log/cloud-init-output.log". in the guest
 
 hostResolver:
