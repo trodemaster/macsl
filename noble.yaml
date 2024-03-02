@@ -28,6 +28,9 @@ timezone: "America/Los_Angeles"
 networks:
 - vzNAT: true
 
+# video:
+#   display: "vz"
+
 containerd:
   system: false
   user: false
