@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+shopt -s nullglob nocaseglob
+
+# modern bash version check
+! [ "${BASH_VERSINFO:-0}" -ge 4 ] && echo "This script requires bash v4 or later" && exit 1
+
+# path to self and parent dir
+SCRIPT=$(realpath $0)
+SCRIPTPATH=$(dirname $SCRIPT)
+
+# check for lima binary
+if ! command -v limactl &> /dev/null
+then
+    echo "limactl could not be found"
+    echo "Install lima from https://lima-vm.io/docs/installation/"
+    exit 1
+fi
+
+# if ~/.lima/macsl/lima.yaml do a reset otherwise create a new instance
+if [ -f ~/.lima/macsl/lima.yaml ]; then
+  echo "limactl factory-reset macsl"
+  limactl factory-reset macsl
+  cp "${SCRIPTPATH}/macsl.yaml" ~/.lima/macsl/lima.yaml
+else
+  echo "limactl create --name=macsl macsl.yaml"
+  limactl create --name=macsl macsl.yaml
+fi
+
+# start the instance and build the image
+echo "limactl start macsl"
+limactl start macsl
+
+exit 0

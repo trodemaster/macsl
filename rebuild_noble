@@ -1,0 +1,4 @@
+#!/opt/local/bin/bash
+limactl factory-reset noble
+cp ~/code/noble/noble.yaml ~/.lima/noble/lima.yaml
+limactl start noble

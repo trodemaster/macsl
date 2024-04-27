@@ -1,8 +1,8 @@
 vmType: "vz"
 images:
-- location: "https://cloud-images.ubuntu.com/noble/20240302/noble-server-cloudimg-arm64.img"
+- location: "https://cloud-images.ubuntu.com/noble/20240423/noble-server-cloudimg-arm64.img"
   arch: "aarch64"
-  digest: "sha256:94c37909790af0a60956e164dc3a77f89f5f1c81676a84fdb68a3d04324801f6"
+  digest: "sha256:c841bac00925d3e6892d979798103a867931f255f28fefd9d5e07e3e22d0ef22"
 
 memory: 16GiB
 disk: 100GiB
@@ -28,8 +28,8 @@ timezone: "America/Los_Angeles"
 networks:
 - vzNAT: true
 
-# video:
-#   display: "vz"
+video:
+  display: "vz"
 
 containerd:
   system: false
