@@ -2,7 +2,7 @@
     "name": "Ubuntu 24.04 Dev Container",
     "image": "ubuntu:24.04",
     "settings": { 
-        "terminal.integrated.shell.linux": "/bin/bash",
-        "postCreateCommand": "apt update && apt install -y git"
-    }
+        "terminal.integrated.shell.linux": "/bin/bash"
+    },
+    "postCreateCommand": "apt update && apt install -y git"
 }
