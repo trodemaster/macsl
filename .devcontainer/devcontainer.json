@@ -4,5 +4,5 @@
     "settings": { 
         "terminal.integrated.shell.linux": "/bin/bash"
     },
-    "postCreateCommand": "apt update && apt install -y git"
+    "postCreateCommand": "sh -c \"$(curl -fsLS get.chezmoi.io)\" -- init --apply trodemaster --use-builtin-git true"
 }
