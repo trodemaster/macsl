@@ -1,8 +1,7 @@
 {
-    "name": "Ubuntu 24.04 Dev Container",
-    "image": "ubuntu:24.04",
+    "name": "Blake Dev Container",
+    "image": "ubuntu:dev-linux",
     "settings": { 
         "terminal.integrated.shell.linux": "/bin/bash"
-    },
-    "postCreateCommand": "sh -c \"$(curl -fsLS get.chezmoi.io)\" -- init --apply trodemaster --use-builtin-git true"
+    }
 }
