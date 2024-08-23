@@ -1,4 +1,4 @@
 #!/opt/local/bin/bash
-limactl factory-reset macsl
-cp ~/code/macsl/macsl.yaml ~/.lima/macsl/lima.yaml
-limactl start macsl
+limactl factory-reset noble
+cp ~/code/noble/noble.yaml ~/.lima/noble/lima.yaml
+limactl start noble

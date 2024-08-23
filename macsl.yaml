@@ -1,11 +1,8 @@
 vmType: "vz"
 images:
-- location: "https://cloud-images.ubuntu.com/releases/23.10/release-20240301/ubuntu-23.10-server-cloudimg-amd64.img"
-  arch: "x86_64"
-  digest: "sha256:6c9906d80d07fd75497f756d64fa122e844f9c21a2fac9853e8dfcd0b6b7c0b6"
-- location: "https://cloud-images.ubuntu.com/releases/23.10/release-20240301/ubuntu-23.10-server-cloudimg-arm64.img"
+- location: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-arm64.img"
   arch: "aarch64"
-  digest: "sha256:68a2e2b21b115c83c6fd103965935dd4a9bc672d6e020ecde5e17c72ccccbd30"
+  digest: "sha256:c841bac00925d3e6892d979798103a867931f255f28fefd9d5e07e3e22d0ef22"
 
 memory: 16GiB
 disk: 100GiB
@@ -31,11 +28,8 @@ timezone: "America/Los_Angeles"
 networks:
 - vzNAT: true
 
-ssh:
-  localPort: 60022
-
-# video:
-#   display: "vz"
+video:
+  display: "vz"
 
 containerd:
   system: false
@@ -44,13 +38,12 @@ containerd:
 provision:
 - mode: system
   script: |
-    #!/bin/sh
-    sed -i 's/host.lima.internal.*/host.lima.internal host.docker.internal/' /etc/hosts
+    #!/usr/bin/bash
+    sudo apt install -y linux-image-virtual-hwe-24.04
 - mode: system
   script: |
-    #!/usr/bin/bash
-    export DEBIAN_FRONTEND=noninteractive
-    sudo apt install -y linux-image-virtual-hwe-22.04
+    #!/bin/sh
+    sed -i 's/host.lima.internal.*/host.lima.internal host.docker.internal/' /etc/hosts
 - mode: system
   script: |
     #!/bin/bash
@@ -74,14 +67,6 @@ provision:
     systemctl --user start dbus
     dockerd-rootless-setuptool.sh install
     docker context use rootless
-- mode: user
-  script: |
-    #!/usr/bin/bash
-    sed -i '/secretive/!d' ~/.ssh/authorized_keys
-    touch ~/.hushlogin
-    echo "neofetch" > ~/.ssh/rc
-    sudo hostnamectl hostname macsl
-    sudo ~/script/nosnap
 probes:
 - script: |
     #!/bin/bash
