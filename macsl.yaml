@@ -1,9 +1,11 @@
+# https://github.com/lima-vm/lima/blob/master/examples/default.yaml
 vmType: "vz"
 images:
 - location: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-arm64.img"
   arch: "aarch64"
-  digest: "sha256:c841bac00925d3e6892d979798103a867931f255f28fefd9d5e07e3e22d0ef22"
+  digest: "sha256:45a432570353b816a75036d89e65841a98b9a936e7b8a48e5ce80829b5761a13"
 
+cpus: 6
 memory: 16GiB
 disk: 100GiB
 
@@ -28,18 +30,22 @@ timezone: "America/Los_Angeles"
 networks:
 - vzNAT: true
 
+ssh:
+  localPort: 6666
+  loadDotSSHPubKeys: true
+
 video:
-  display: "vz"
+  display: "none"
 
 containerd:
   system: false
   user: false
 
 provision:
-- mode: system
-  script: |
-    #!/usr/bin/bash
-    sudo apt install -y linux-image-virtual-hwe-24.04
+#- mode: system
+#  script: |
+#    #!/usr/bin/bash
+#    sudo apt install -y linux-image-virtual-hwe-24.04
 - mode: system
   script: |
     #!/bin/sh

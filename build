@@ -24,18 +24,21 @@ CURRENT_HASH=$(wget -qO- https://cloud-images.ubuntu.com/noble/current/SHA256SUM
 # update the digest in the yaml file
 sed -i '' "s/digest: .*/digest: \"sha256:${CURRENT_HASH}\"/" "${SCRIPTPATH}/macsl.yaml"
 
-# if ~/.lima/noble/lima.yaml do a reset otherwise create a new instance
-if [ -f ~/.lima/noble/lima.yaml ]; then
-  echo "limactl factory-reset noble"
-  limactl factory-reset noble
-  cp "${SCRIPTPATH}/macsl.yaml" ~/.lima/noble/lima.yaml
+# if ~/.lima/macsl/lima.yaml do a reset otherwise create a new instance
+if [ -f ~/.lima/macsl/lima.yaml ]; then
+  echo "limactl factory-reset macsl"
+  limactl factory-reset macsl
+  cp "${SCRIPTPATH}/macsl.yaml" ~/.lima/macsl/lima.yaml
 else
-  echo "limactl create --name=noble macsl.yaml"
-  limactl create --name=noble macsl.yaml
+  echo "limactl create --name=macsl macsl.yaml --tty=false"
+  limactl create --name=macsl macsl.yaml --tty=false
 fi
 
 # start the instance and build the image
-echo "limactl start noble"
-limactl start noble
+echo "limactl start macsl"
+limactl start macsl
+
+# setting auto-start at login
+limactl start-at-login macsl
 
 exit 0
