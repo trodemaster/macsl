@@ -37,8 +37,8 @@ ssh:
 video:
   display: "none"
 
-audio:
-  enabled: false # vz
+# audio:
+#   enabled: vz
 
 containerd:
   system: false
