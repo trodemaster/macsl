@@ -94,6 +94,8 @@ hostResolver:
   hosts:
     host.docker.internal: host.lima.internal
 portForwards:
+- guestPortRange: [ 1, 65535 ]
+  hostIP: 0.0.0.0
 - guestSocket: "/run/user/{{.UID}}/docker.sock"
   hostSocket: "{{.Dir}}/sock/docker.sock"
 message: |
