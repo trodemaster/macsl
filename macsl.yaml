@@ -29,6 +29,7 @@ timezone: "America/Los_Angeles"
 
 networks:
 - vzNAT: true
+  metric: 250
 
 ssh:
   localPort: 6666
