@@ -11,9 +11,10 @@ disk: 20GiB
 
 mountType: "virtiofs"
 mounts:
-- location: "~/scratch"
+- location: "~/code/macsl/scripts"
   writable: true
-  mountPoint: "~/scratch"
+  mountPoint: "~/appletalk"
+
 timezone: "America/Los_Angeles"
 
 networks:
@@ -41,9 +42,7 @@ provision:
     sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply trodemaster
 - mode: user
   script: |
-    #!/bin/bash
-    sudo apt install -y libpcap-dev
-    go install drjosh.dev/jrouter@latest
+    ~/appletalk/setup_appletalk.sh
 
 portForwards:
 - guestPortRange: [ 1, 65535 ]

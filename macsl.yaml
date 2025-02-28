@@ -46,10 +46,10 @@ containerd:
   user: false
 
 provision:
-#- mode: system
-#  script: |
-#    #!/usr/bin/bash
-#    sudo apt install -y linux-image-virtual-hwe-24.04
+- mode: system
+  script: |
+    #!/usr/bin/bash
+    sudo apt install -y linux-image-virtual-hwe-24.04
 - mode: system
   script: |
     #!/bin/sh
