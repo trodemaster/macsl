@@ -3,23 +3,26 @@ vmType: "vz"
 images:
 - location: "https://cloud-images.ubuntu.com/plucky/current/plucky-server-cloudimg-arm64.img"
   arch: "aarch64"
-- location: "https://cloud-images.ubuntu.com/plucky/current/plucky-server-cloudimg-amd64.img"
+- location: "https://cloud-images.ubuntu.com/plucky/20250128/plucky-server-cloudimg-amd64.img"
   arch: "x86_64"
-cpus: 2
-memory: 8GiB
+cpus: 16
+memory: 32GiB
 disk: 20GiB
 
 mountType: "virtiofs"
 mounts:
-- location: "~/code/macsl/scripts"
+- location: "~/code/macsl/config"
   writable: true
-  mountPoint: "~/appletalk"
+  mountPoint: "~/config"
+- location: "/Volumes/JonesFarm/MacPro"
+  writable: true
+  mountPoint: "/mnt/MacPro"
 
 timezone: "America/Los_Angeles"
 
-networks:
-- vzNAT: true
-  metric: 250
+# networks:
+# - vzNAT: true
+#   metric: 250
 
 ssh:
   localPort: 6206
@@ -42,12 +45,8 @@ provision:
     sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply trodemaster
 - mode: user
   script: |
-    ~/appletalk/setup_appletalk.sh
+    /Users/blake/config/setup_appletalk.sh
 
 portForwards:
 - guestPortRange: [ 1, 65535 ]
-  hostIP: 0.0.0.0
-
-
-# sudo apt install libpcap-dev
-# go install drjosh.dev/jrouter@latest
+  hostIP: 192.168.0.21
