@@ -29,7 +29,7 @@ ethertalk:
     # ethernet_addr overrides the "hardware" address used by jrouter.
     # This is useful if you have another AppleTalk software running on the same
     # machine, e.g. netatalk, and you do not want jrouter to steal its packets.
-    ethernet_addr: '08:00:07:fe:dc:ba'
+    ethernet_addr: '52:55:55:66:0b:88'
     # Name of the AppleTalk zone - required.
     zone_name: netjibbing
     # Network number range for this network (inclusive) - required.

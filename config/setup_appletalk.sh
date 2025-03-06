@@ -10,10 +10,15 @@ shopt -s nullglob nocaseglob
 SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
-# Variables with default values
-VAULT_ADDR="${VAULT_ADDR:-https://vault.example.com:8200}"
-VAULT_AGENT_ROLEID="${VAULT_AGENT_ROLEID:-}"
-VAULT_AGENT_SECRETID="${VAULT_AGENT_SECRETID:-}"
+# source the .env file
+if [ -f "$SCRIPTPATH/.env" ]; then
+  source "$SCRIPTPATH/.env"
+else
+  echo "No .env file found"
+  exit 1
+fi
+
+# hackup hashicorp sources.list
 sudo sed -i s/plucky/noble/g /etc/apt/sources.list.d/hashicorp.list
 
 sudo apt update
@@ -21,6 +26,7 @@ sudo apt -y install libpcap-dev golang netatalk
 
 # config netatalk
 sudo systemctl stop netatalk
+sudo systemctl stop atalkd
 
 # Backup existing afp.conf if it exists
 if [ -f /etc/netatalk/afp.conf ]; then
@@ -38,11 +44,25 @@ fi
 # Create symlink to the atalkd config file
 sudo ln -sf /Users/blake/config/atalkd.conf /etc/netatalk/atalkd.conf
 
-sudo systemctl daemon-reload
-sudo systemctl start netatalk
+# set password for blake account
+sudo afppasswd -c
+sudo afppasswd -n -w $AFP_PASSWORD_BLAKE blake
 
 # install and configure jrouter
-# go install drjosh.dev/jrouter@latest
+go install drjosh.dev/jrouter@latest
+sudo setcap 'CAP_NET_BIND_SERVICE=ep CAP_NET_RAW=ep' ~/go/bin/jrouter
+
+# install and configure jrouter.service file
+sudo ln -sf /Users/blake/config/jrouter.service /etc/systemd/system/jrouter.service
+
+# reload systemd
+sudo systemctl daemon-reload
+
+# start services
+sudo systemctl start netatalk
+sudo systemctl start atalkd
+sudo systemctl enable jrouter
+sudo systemctl start jrouter
 
 # update locate so I can find the files
 sudo updatedb

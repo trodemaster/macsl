@@ -1,0 +1,12 @@
+[Unit]
+Description=JRouter Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/blake.linux/go/bin/jrouter -config /Users/blake/config/jrouter.yaml
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
