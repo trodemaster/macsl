@@ -1,10 +1,9 @@
 # https://github.com/lima-vm/lima/blob/master/examples/default.yaml
 vmType: "vz"
 images:
-- location: "https://cloud-images.ubuntu.com/plucky/current/plucky-server-cloudimg-arm64.img"
+- location: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-arm64.img"
   arch: "aarch64"
-- location: "https://cloud-images.ubuntu.com/plucky/20250128/plucky-server-cloudimg-amd64.img"
-#- location: "https://cloud-images.ubuntu.com/plucky/current/plucky-server-cloudimg-amd64.img"
+- location: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
   arch: "x86_64"
 cpus: 16
 memory: 32GiB

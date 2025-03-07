@@ -21,28 +21,56 @@ fi
 # hackup hashicorp sources.list
 sudo sed -i s/plucky/noble/g /etc/apt/sources.list.d/hashicorp.list
 
+# install needed packages
 sudo apt update
-sudo apt -y install libpcap-dev golang netatalk
+sudo apt upgrade -y
+sudo apt -y install libkrb5-dev libavahi-client-dev bison flex \
+libtalloc-dev libtracker-sparql-3.0-dev libcups2-dev libtirpc-dev quota \
+libglib2.0-dev libcrack2-dev libwrap0-dev libiniparser-dev libevent-dev libgcrypt20-dev \
+avahi-daemon avahi-utils libnss-mdns meson golang libdb5.3-dev \
+libpcap-dev cmark libacl1-dev libldap2-dev libpam-dev cracklib-runtime libssl-dev
+
+# Load AppleTalk kernel module
+sudo modprobe appletalk
+echo "appletalk" | sudo tee /etc/modules-load.d/appletalk.conf
+
+# netatalk
+# Check if netatalk directory already exists
+if [[ ! -d ~/code/netatalk ]]; then
+  # Directory doesn't exist, clone the repo
+  echo "Cloning netatalk repository..."
+  git clone https://github.com/Netatalk/netatalk.git ~/code/netatalk
+else
+  echo "Netatalk repository already exists, skipping clone"
+fi
+
+# Change to the netatalk directory regardless
+cd ~/code/netatalk
+
+# configure the build
+meson setup build -Dwith-appletalk=true -Dwith-acls=true
+meson compile -C build
+sudo meson install -C build 
 
 # config netatalk
-sudo systemctl stop netatalk
-sudo systemctl stop atalkd
+sudo systemctl stop netatalk || true
+sudo systemctl stop atalkd || true
 
 # Backup existing afp.conf if it exists
-if [ -f /etc/netatalk/afp.conf ]; then
-  sudo mv /etc/netatalk/afp.conf /etc/netatalk/afp.conf.bak
+if [ -f /usr/local/etc/afp.conf ]; then
+  sudo mv /usr/local/etc/afp.conf /usr/local/etc/afp.conf.bak
 fi
 
 # Create symlink to the afp config file
-sudo ln -sf /Users/blake/config/afp.conf /etc/netatalk/afp.conf
+sudo ln -sf /Users/blake/config/afp.conf /usr/local/etc/afp.conf
 
 # Backup existing atalkd.conf if it exists
-if [ -f /etc/netatalk/atalkd.conf ]; then
-  sudo mv /etc/netatalk/atalkd.conf /etc/netatalk/atalkd.conf.bak
+if [ -f /usr/local/etc/atalkd.conf ]; then
+  sudo mv /usr/local/etc/atalkd.conf /usr/local/etc/atalkd.conf.bak
 fi
 
 # Create symlink to the atalkd config file
-sudo ln -sf /Users/blake/config/atalkd.conf /etc/netatalk/atalkd.conf
+sudo ln -sf /Users/blake/config/atalkd.conf /usr/local/etc/atalkd.conf
 
 # set password for blake account
 sudo afppasswd -c
@@ -59,6 +87,8 @@ sudo ln -sf /Users/blake/config/jrouter.service /etc/systemd/system/jrouter.serv
 sudo systemctl daemon-reload
 
 # start services
+sudo systemctl enable netatalk
+sudo systemctl enable atalkd
 sudo systemctl start netatalk
 sudo systemctl start atalkd
 sudo systemctl enable jrouter
