@@ -54,7 +54,7 @@ fi
 cd ~/code/netatalk
 
 # configure the build
-meson setup --wipe build -Dwith-appletalk=true -Dwith-acls=true
+meson setup --wipe build -Dwith-appletalk=true -Dwith-acls=true -Dwith-debug=false
 meson compile -C build
 sudo meson install -C build
 
