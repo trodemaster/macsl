@@ -25,10 +25,16 @@ sudo sed -i s/plucky/noble/g /etc/apt/sources.list.d/hashicorp.list
 sudo apt update
 sudo apt upgrade -y
 sudo apt -y install libkrb5-dev libavahi-client-dev bison flex \
-libtalloc-dev libtracker-sparql-3.0-dev libcups2-dev libtirpc-dev quota \
-libglib2.0-dev libcrack2-dev libwrap0-dev libiniparser-dev libevent-dev libgcrypt20-dev \
-avahi-daemon avahi-utils libnss-mdns meson golang libdb5.3-dev \
-libpcap-dev cmark libacl1-dev libldap2-dev libpam-dev cracklib-runtime libssl-dev
+  libtalloc-dev libtracker-sparql-3.0-dev libcups2-dev libtirpc-dev quota \
+  libglib2.0-dev libcrack2-dev libwrap0-dev libiniparser-dev libevent-dev libgcrypt20-dev \
+  avahi-daemon avahi-utils libnss-mdns meson golang libdb5.3-dev \
+  libpcap-dev cmark libacl1-dev libldap2-dev libpam-dev cracklib-runtime libssl-dev \
+  tracker tracker-extract tracker-miner-fs \
+  systemtap-sdt-dev \
+  libreadline-dev \
+  mysql-client \
+  libelf-dev \
+  dbus-x11
 
 # Load AppleTalk kernel module
 sudo modprobe appletalk
@@ -48,9 +54,9 @@ fi
 cd ~/code/netatalk
 
 # configure the build
-meson setup build -Dwith-appletalk=true -Dwith-acls=true
+meson setup --wipe build -Dwith-appletalk=true -Dwith-acls=true
 meson compile -C build
-sudo meson install -C build 
+sudo meson install -C build
 
 # config netatalk
 sudo systemctl stop netatalk || true
@@ -73,8 +79,10 @@ fi
 sudo ln -sf /Users/blake/config/atalkd.conf /usr/local/etc/atalkd.conf
 
 # set password for blake account
-sudo afppasswd -c
-sudo afppasswd -n -w $AFP_PASSWORD_BLAKE blake
+if ! [ -f /usr/local/etc/afppasswd ]; then
+  sudo afppasswd -c
+  sudo afppasswd -n -w $AFP_PASSWORD_BLAKE blake
+fi
 
 # install and configure jrouter
 go install drjosh.dev/jrouter@latest
@@ -87,12 +95,12 @@ sudo ln -sf /Users/blake/config/jrouter.service /etc/systemd/system/jrouter.serv
 sudo systemctl daemon-reload
 
 # start services
-sudo systemctl enable netatalk
+sudo systemctl start atalkd
 sudo systemctl enable atalkd
 sudo systemctl start netatalk
-sudo systemctl start atalkd
-sudo systemctl enable jrouter
+sudo systemctl enable netatalk
 sudo systemctl start jrouter
+sudo systemctl enable jrouter
 
 # update locate so I can find the files
 sudo updatedb
