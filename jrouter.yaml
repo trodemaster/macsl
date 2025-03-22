@@ -1,0 +1,48 @@
+# https://github.com/lima-vm/lima/blob/master/examples/default.yaml
+vmType: "vz"
+images:
+- location: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-arm64.img"
+  arch: "aarch64"
+- location: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+  arch: "x86_64"
+cpus: 16
+memory: 32GiB
+disk: 20GiB
+
+timezone: "America/Los_Angeles"
+
+networks:
+ - socket: /opt/local/var/run/socket_vmnet/bridged.en1-vlan20-jrouter
+
+mountType: "virtiofs"
+mounts:
+- location: "~/code/macsl/config"
+  writable: true
+  mountPoint: "~/config"
+  
+ssh:
+  localPort: 6207
+  loadDotSSHPubKeys: true
+
+#video:
+#  display: "vz"
+
+# audio:
+#   enabled: vz
+
+containerd:
+  system: false
+  user: false
+
+provision:
+- mode: user
+  script: |
+    #!/usr/bin/bash
+    sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply trodemaster
+- mode: user
+  script: |
+    /Users/blake/config/setup_jrouter.sh
+
+#portForwards:
+#- guestPortRange: [ 1, 65535 ]
+#  hostIP: 192.168.0.21

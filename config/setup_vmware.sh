@@ -21,57 +21,38 @@ fi
 # hackup hashicorp sources.list
 sudo sed -i s/plucky/noble/g /etc/apt/sources.list.d/hashicorp.list
 
-# load appletalk kernel module
-sudo modprobe appletalk
-
-# Load AppleTalk kernel module
-if [ ! -f /etc/modules-load.d/appletalk.conf ] || ! grep -q appletalk /etc/modules-load.d/appletalk.conf; then
-  echo "appletalk" | sudo tee /etc/modules-load.d/appletalk.conf
-fi
-
 # install needed packages
 sudo apt update
 sudo apt upgrade -y
-sudo apt -y install golang libpcap-dev netatalk
+sudo apt -y install 
+avahi-daemon avahi-utils libnss-mdns meson golang netatalk
+
+# Load AppleTalk kernel module
+sudo modprobe appletalk
+echo "appletalk" | sudo tee /etc/modules-load.d/appletalk.conf
 
 # config netatalk
 sudo systemctl stop netatalk || true
 sudo systemctl stop atalkd || true
 
 # Backup existing afp.conf if it exists
-if [ -f /etc/netatalk/afp.conf ]; then
-  sudo mv /etc/netatalk/afp.conf /etc/netatalk/afp.conf.bak
+if [ -f /usr/local/etc/afp.conf ]; then
+  sudo mv /usr/local/etc/afp.conf /usr/local/etc/afp.conf.bak
 fi
 
 # Create symlink to the afp config file
-sudo ln -sf /Users/blake/config/afp.conf /etc/netatalk/afp.conf
+sudo ln -sf /Users/blake/config/afp.conf /usr/local/etc/afp.conf
 
 # Backup existing atalkd.conf if it exists
-if [ -f /etc/netatalk/atalkd.conf ]; then
-  sudo mv /etc/netatalk/atalkd.conf /etc/netatalk/atalkd.conf.bak
+if [ -f /usr/local/etc/atalkd.conf ]; then
+  sudo mv /usr/local/etc/atalkd.conf /usr/local/etc/atalkd.conf.bak
 fi
 
 # Create symlink to the atalkd config file
-sudo ln -sf /Users/blake/config/atalkd.conf /etc/netatalk/atalkd.conf
-
-# backup existing netatalk service file
-if [ -f /etc/systemd/system/netatalk.service ]; then
-  sudo mv /etc/systemd/system/netatalk.service /etc/systemd/system/netatalk.service.bak
-fi
-
-# link to custom netatalk service file
-sudo ln -sf /Users/blake/config/netatalk.service /etc/systemd/system/netatalk.service
-
-# backup existing atalkd service file
-if [ -f /etc/systemd/system/atalkd.service ]; then
-  sudo mv /etc/systemd/system/atalkd.service /etc/systemd/system/atalkd.service.bak
-fi
-
-# link to custom atalkd service file
-sudo ln -sf /Users/blake/config/atalkd.service /etc/systemd/system/atalkd.service
+sudo ln -sf /Users/blake/config/atalkd.conf /usr/local/etc/atalkd.conf
 
 # set password for blake account
-if ! [ -f /etc/netatalk/afppasswd ]; then
+if ! [ -f /usr/local/etc/afppasswd ]; then
   sudo afppasswd -c
   sudo afppasswd -n -w $AFP_PASSWORD_BLAKE blake
 fi

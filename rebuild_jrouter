@@ -1,0 +1,4 @@
+#!/opt/local/bin/bash
+limactl factory-reset jrouter
+cp ~/code/macsl/jrouter.yaml ~/.lima/jrouter/lima.yaml
+limactl start jrouter

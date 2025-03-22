@@ -4,7 +4,6 @@
 # but if jrouter is exposed directly to the internet, only 387 is expected to
 # work.
 listen_port: 387
-
 # local_ip is used to set the "real" IP address that this server is
 # reachable on, when it is not any of the host addresses.
 # AURP includes this address as part of this server's identity in the network.
@@ -19,13 +18,13 @@ local_ip: 207.108.197.152
 # to monitoring jrouter. Currently these are:
 # - /status - a page that displays the current state of key components
 # - /metrics - Prometheus-style metrics
-monitoring_addr: "192.168.0.27:9459"
+monitoring_addr: "192.168.0.29:9459"
 
 # ethertalk configures network interfaces used for Ethertalk, and the
 # AppleTalk zone information.
 # This can contain either a single ethertalk config, or a list of such configs.
 ethertalk:
-  - device: lima1 # Name of the device - required.
+  - device: lima0 # Name of the device - required.
     # ethernet_addr overrides the "hardware" address used by jrouter.
     # This is useful if you have another AppleTalk software running on the same
     # machine, e.g. netatalk, and you do not want jrouter to steal its packets.
