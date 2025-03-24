@@ -49,9 +49,9 @@ provision:
   script: |
     #!/usr/bin/bash
     sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply trodemaster
-#- mode: user
-#  script: |
-#    /Users/blake/config/setup_appletalk.sh
+- mode: user
+  script: |
+    /Users/blake/config/setup_appletalk.sh
 
 #portForwards:
 #- guestPortRange: [ 1, 65535 ]

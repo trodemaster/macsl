@@ -98,3 +98,11 @@ sudo systemctl enable netatalk
 sudo updatedb
 
 exit 0
+
+sudo systemctl stop netatalk || true
+sudo systemctl stop atalkd || true
+sudo systemctl stop jrouter || true
+sudo systemctl daemon-reload
+sudo systemctl start atalkd
+sudo systemctl start netatalk
+sudo systemctl start jrouter
