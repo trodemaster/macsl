@@ -98,6 +98,15 @@ sudo systemctl enable netatalk
 sudo updatedb
 
 exit 0
+# try multiple nics on macpro? 
+# Chooser crashing on phsical mac duo
+# get OS9 lives images on scuzzy pi and boot from those.. 
+# os 9 qemu can't see darkstar as it's on the same system.. 
+# Same with seperate socket_vmnet or the same
+# fix these and then add jrouter to the mix
+# pull cube 12.ghz cpu and clean it
+# get known good firmware and software on cube
+# research crashing on 12.ghz cpu
 
 sudo systemctl stop netatalk || true
 sudo systemctl stop atalkd || true

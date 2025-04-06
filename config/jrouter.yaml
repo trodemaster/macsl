@@ -18,17 +18,17 @@ local_ip: 207.108.197.152
 # to monitoring jrouter. Currently these are:
 # - /status - a page that displays the current state of key components
 # - /metrics - Prometheus-style metrics
-monitoring_addr: "192.168.0.29:9459"
+monitoring_addr: "192.168.0.33:9459"
 
 # ethertalk configures network interfaces used for Ethertalk, and the
 # AppleTalk zone information.
 # This can contain either a single ethertalk config, or a list of such configs.
 ethertalk:
-  - device: lima0 # Name of the device - required.
+  - device: lima1 # Name of the device - required.
     # ethernet_addr overrides the "hardware" address used by jrouter.
     # This is useful if you have another AppleTalk software running on the same
     # machine, e.g. netatalk, and you do not want jrouter to steal its packets.
-    # ethernet_addr: '52:55:55:66:0b:88'
+    ethernet_addr: '52:55:55:97:4a:dd'
     # Name of the AppleTalk zone - required.
     zone_name: netjibbing
     # Network number range for this network (inclusive) - required.
@@ -37,7 +37,7 @@ ethertalk:
 
 # open_peering lets the server accept incoming connections from unknown servers.
 # If you disable this, only the configured peers will be connected.
-# open_peering: true
+open_peering: false
 
 # peers lists IP addresses or domain names of peers to actively connect to.
 #peers:
