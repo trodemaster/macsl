@@ -1,4 +1,12 @@
 #!/opt/local/bin/bash
+
+# Check if the launchd_docker job is running
+if launchctl list | grep -q "launchd_docker"; then
+    echo "launchd_docker is running. Stopping it..."
+    launchctl bootout gui/$(id -u) ~/code/machine-cfg/$(hostname -s)/launchd_docker.plist
+    echo "launchd_docker is stopped."
+fi
+
 limactl factory-reset macsl
 cp ~/code/macsl/macsl.yaml ~/.lima/macsl/lima.yaml
 limactl start macsl
