@@ -1,4 +1,0 @@
-#!/opt/local/bin/bash
-limactl factory-reset appletalk
-cp ~/code/macsl/appletalk.yaml ~/.lima/appletalk/lima.yaml
-limactl start appletalk

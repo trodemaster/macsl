@@ -3,7 +3,8 @@ vmType: "vz"
 images:
 - location: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-arm64.img"
   arch: "aarch64"
-  digest: "sha256:45a432570353b816a75036d89e65841a98b9a936e7b8a48e5ce80829b5761a13"
+- location: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+  arch: "x86_64"
 
 cpus: 6
 memory: 16GiB
