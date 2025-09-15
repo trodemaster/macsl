@@ -12,15 +12,15 @@ disk: 100GiB
 
 mountType: "virtiofs"
 mounts:
-- location: "~/code"
+- location: "{{.Home}}/code"
   writable: true
-  mountPoint: "~/code"
-- location: "~/Downloads"
+  mountPoint: "{{.Home}}/code"
+- location: "{{.Home}}/Downloads"
   writable: true
-  mountPoint: "~/Downloads"
-- location: "~/scratch"
+  mountPoint: "{{.Home}}/Downloads"
+- location: "{{.Home}}/scratch"
   writable: true
-  mountPoint: "~/scratch"
+  mountPoint: "{{.Home}}/scratch"
 
 rosetta:
   enabled: true
