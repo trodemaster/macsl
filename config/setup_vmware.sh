@@ -10,6 +10,10 @@ shopt -s nullglob nocaseglob
 SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
+# configurable user paths
+LINUX_USER_HOME="${LINUX_USER_HOME:-/home/$(whoami).linux}"
+HOST_CONFIG_DIR="${HOST_CONFIG_DIR:-/Users/$(whoami)}"
+
 # source the .env file
 if [ -f "$SCRIPTPATH/.env" ]; then
   source "$SCRIPTPATH/.env"
@@ -41,7 +45,7 @@ if [ -f /usr/local/etc/afp.conf ]; then
 fi
 
 # Create symlink to the afp config file
-sudo ln -sf /Users/blake/config/afp.conf /usr/local/etc/afp.conf
+sudo ln -sf ${HOST_CONFIG_DIR}/config/afp.conf /usr/local/etc/afp.conf
 
 # Backup existing atalkd.conf if it exists
 if [ -f /usr/local/etc/atalkd.conf ]; then
@@ -49,7 +53,7 @@ if [ -f /usr/local/etc/atalkd.conf ]; then
 fi
 
 # Create symlink to the atalkd config file
-sudo ln -sf /Users/blake/config/atalkd.conf /usr/local/etc/atalkd.conf
+sudo ln -sf ${HOST_CONFIG_DIR}/config/atalkd.conf /usr/local/etc/atalkd.conf
 
 # set password for blake account
 if ! [ -f /usr/local/etc/afppasswd ]; then
@@ -62,7 +66,7 @@ fi
 #sudo setcap 'CAP_NET_BIND_SERVICE=ep CAP_NET_RAW=ep' ~/go/bin/jrouter
 #
 ## install and configure jrouter.service file
-#sudo ln -sf /Users/blake/config/jrouter.service /etc/systemd/system/jrouter.service
+#sudo ln -sf ${HOST_CONFIG_DIR}/config/jrouter.service /etc/systemd/system/jrouter.service
 
 # reload systemd
 sudo systemctl daemon-reload

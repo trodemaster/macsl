@@ -10,6 +10,10 @@ shopt -s nullglob nocaseglob
 SCRIPT=$(realpath $0)
 SCRIPTPATH=$(dirname $SCRIPT)
 
+# configurable user paths
+LINUX_USER_HOME="${LINUX_USER_HOME:-/home/$(whoami).linux}"
+HOST_CONFIG_DIR="${HOST_CONFIG_DIR:-/Users/$(whoami)}"
+
 # source the .env file
 if [ -f "$SCRIPTPATH/.env" ]; then
   source "$SCRIPTPATH/.env"
@@ -44,7 +48,7 @@ if [ -f /etc/netatalk/afp.conf ]; then
 fi
 
 # Create symlink to the afp config file
-sudo ln -sf /Users/blake/config/afp.conf /etc/netatalk/afp.conf
+sudo ln -sf ${HOST_CONFIG_DIR}/config/afp.conf /etc/netatalk/afp.conf
 
 # Backup existing atalkd.conf if it exists
 if [ -f /etc/netatalk/atalkd.conf ]; then
@@ -52,7 +56,7 @@ if [ -f /etc/netatalk/atalkd.conf ]; then
 fi
 
 # Create symlink to the atalkd config file
-sudo ln -sf /Users/blake/config/atalkd.conf /etc/netatalk/atalkd.conf
+sudo ln -sf ${HOST_CONFIG_DIR}/config/atalkd.conf /etc/netatalk/atalkd.conf
 
 # backup existing netatalk service file
 if [ -f /etc/systemd/system/netatalk.service ]; then
@@ -60,7 +64,7 @@ if [ -f /etc/systemd/system/netatalk.service ]; then
 fi
 
 # link to custom netatalk service file
-sudo ln -sf /Users/blake/config/netatalk.service /etc/systemd/system/netatalk.service
+sudo ln -sf ${HOST_CONFIG_DIR}/config/netatalk.service /etc/systemd/system/netatalk.service
 
 # backup existing atalkd service file
 if [ -f /etc/systemd/system/atalkd.service ]; then
@@ -68,7 +72,7 @@ if [ -f /etc/systemd/system/atalkd.service ]; then
 fi
 
 # link to custom atalkd service file
-sudo ln -sf /Users/blake/config/atalkd.service /etc/systemd/system/atalkd.service
+sudo ln -sf ${HOST_CONFIG_DIR}/config/atalkd.service /etc/systemd/system/atalkd.service
 
 # set password for blake account
 if ! [ -f /etc/netatalk/afppasswd ]; then
@@ -81,7 +85,7 @@ fi
 #sudo setcap 'CAP_NET_BIND_SERVICE=ep CAP_NET_RAW=ep' ~/go/bin/jrouter
 #
 ## install and configure jrouter.service file
-#sudo ln -sf /Users/blake/config/jrouter.service /etc/systemd/system/jrouter.service
+#sudo ln -sf ${HOST_CONFIG_DIR}/config/jrouter.service /etc/systemd/system/jrouter.service
 
 # reload systemd
 sudo systemctl daemon-reload

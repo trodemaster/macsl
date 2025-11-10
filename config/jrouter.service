@@ -4,7 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/blake.linux/go/bin/jrouter -config /Users/blake/config/jrouter.yaml
+Environment=LINUX_USER_HOME=/home/blake.linux
+Environment=HOST_CONFIG_DIR=/Users/blake
+ExecStart=${LINUX_USER_HOME}/go/bin/jrouter -config ${HOST_CONFIG_DIR}/config/jrouter.yaml
 Restart=on-failure
 RestartSec=5s
 # RestrictNetworkInterfaces=lima1

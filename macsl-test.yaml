@@ -1,0 +1,79 @@
+# https://github.com/lima-vm/lima/blob/master/examples/default.yaml
+vmType: "vz"
+images:
+- location: "https://cloud-images.ubuntu.com/questing/current/questing-server-cloudimg-arm64.img"
+  arch: "aarch64"
+- location: "https://cloud-images.ubuntu.com/questing/current/questing-server-cloudimg-amd64.img"
+  arch: "x86_64"
+
+cpus: 4
+memory: 8GiB
+disk: 50GiB
+
+mountType: "virtiofs"
+mounts:
+- location: "{{.Home}}/code"
+  writable: true
+- location: "{{.Home}}/Downloads"
+  writable: true
+- location: "{{.Home}}/scratch"
+  writable: true
+
+rosetta:
+  enabled: true
+  binfmt: true
+
+timezone: "America/Los_Angeles"
+
+networks:
+- vzNAT: true
+  metric: 250
+
+ssh:
+  localPort: 6667
+  loadDotSSHPubKeys: true
+
+video:
+  display: "vz"
+
+# audio:
+#   enabled: vz
+
+containerd:
+  system: false
+  user: false
+
+provision:
+- mode: system
+  script: |
+    #!/bin/sh
+    sed -i 's/host.lima.internal.*/host.lima.internal host.docker.internal/' /etc/hosts
+
+- mode: system
+  script: |
+    #!/bin/bash
+    command -v docker >/dev/null 2>&1 && exit 0
+    export DEBIAN_FRONTEND=noninteractive
+    curl -fsSL https://get.docker.com | sh
+
+- mode: user
+  script: |
+    #!/usr/bin/bash
+    sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply trodemaster
+
+hostResolver:
+  hosts:
+    host.docker.internal: host.lima.internal
+
+portForwards:
+#- guestPortRange: [ 1, 65535 ]
+#  hostIP: 0.0.0.0
+- guestSocket: "/run/user/{{.UID}}/docker.sock"
+  hostSocket: "{{.Dir}}/sock/docker.sock"
+message: |
+  To run `docker` on the host (assumes docker-cli is installed), run the following commands:
+  ------
+  docker context create lima-macsl-test --docker "host=unix://{{.Dir}}/sock/docker.sock"
+  docker context use lima-macsl-test
+  docker run --rm -ti --platform linux/amd64 ubuntu:latest
+  ------

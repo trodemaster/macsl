@@ -1,244 +1,249 @@
-# GitHub Actions Self-Hosted Runner with Docker Compose
+# MacSL - Mac System Level Configuration
 
-This setup provides a scalable GitHub Actions self-hosted runner using Docker Compose with Ubuntu Noble Numbat (24.04) containers.
+This repository contains configuration files and scripts for setting up AppleTalk networking services on Linux systems, particularly for legacy macOS compatibility.
+
+## Overview
+
+MacSL provides configuration files and setup scripts for Netatalk (AppleTalk protocol implementation) and related services to enable AppleTalk networking between modern Linux systems and legacy macOS computers.
+
+## Components
+
+### Netatalk Configuration
+- `config/afp.conf` - AFP (Apple Filing Protocol) configuration
+- `config/atalkd.conf` - AppleTalk daemon configuration
+- `config/netatalk.service` - Systemd service file for Netatalk
+- `config/atalkd.service` - Systemd service file for atalkd
+
+### JRouter Configuration
+- `config/jrouter.service` - Systemd service for JRouter
+- `config/jrouter.yaml` - JRouter configuration file
+
+### Setup Scripts
+- `config/setup_appletalk.sh` - AppleTalk networking setup
+- `config/setup_jrouter.sh` - JRouter setup
+- `config/setup_vmware.sh` - VMware integration setup
 
 ## Quick Start
 
-1. **Set up environment variables:**
+### VM Management (New Makefile-based workflow)
+
+1. **Clone the repository:**
    ```bash
-   cp env.example .env
-   # Edit .env with your GitHub details
+   git clone https://github.com/your-org/macsl.git
+   cd macsl
    ```
 
-2. **Build the container image:**
+2. **Build and start the macsl VM:**
    ```bash
-   ./runner-build-container.sh
+   make build
    ```
 
-3. **Start the runners:**
+3. **Access the VM shell:**
    ```bash
-   # Start 1 runner (default)
-   docker-compose up -d
-
-   # Start 3 runners (with unique hostname-based suffixes)
-   docker-compose up -d --scale github-runner=3
-
-   # Start 6 runners (with unique hostname-based suffixes)
-   docker-compose up -d --scale github-runner=6
+   make shell
    ```
 
-## Configuration
+### Development Testing
 
-### Environment Variables
-
-Create a `.env` file with the following variables:
+For development work that won't interfere with your production VM:
 
 ```bash
-# Required
-GITHUB_TOKEN=your_github_personal_access_token
-GITHUB_OWNER=your_github_username_or_org
-GITHUB_REPOSITORY=your_repository
+# Create and start a separate test VM
+make test-vm
 
-# Optional (with defaults)
-RUNNER_LABELS=ubuntu,ubuntu-24.04,noble,self-hosted
+# Access the test VM shell
+make test-shell
+
+# Check status of both VMs
+make status
+
+# Clean up test VM when done
+make clean-test
 ```
 
-### GitHub Personal Access Token
+### Legacy AppleTalk Setup (in VM)
 
-Your GitHub PAT needs specific permissions for self-hosted runner management. Create a new token at [GitHub Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens).
-
-#### Required Scopes for Repository-Level Runners
-
-For repository-scoped runners (recommended), your token needs:
-
-- ✅ **`repo`** - Full control of private repositories
-  - Includes: `repo:status`, `repo_deployment`, `public_repo`, `repo:invite`, `security_events`
-- ✅ **`workflow`** - Update GitHub Action workflows
-- ✅ **`admin:repo_hook`** - Full control of repository hooks (optional, for webhooks)
-- ✅ **`write:packages`** - Upload packages to GitHub Package Registry (optional)
-
-#### Required Scopes for Organization-Level Runners
-
-For organization-scoped runners, your token needs:
-
-- ✅ **`admin:org`** - Full control of organizations and teams
-- ✅ **`repo`** - Full control of private repositories  
-- ✅ **`workflow`** - Update GitHub Action workflows
-
-#### Token Creation Steps
-
-1. Go to [GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)](https://github.com/settings/tokens)
-2. Click "Generate new token (classic)"
-3. Set expiration (recommended: 90 days or custom)
-4. Select the required scopes listed above
-5. Click "Generate token"
-6. Copy the token and update your `.env` file
-
-#### Testing Token Permissions
-
-Verify your token has the correct permissions:
+Once inside the VM shell, run the AppleTalk setup:
 
 ```bash
-# Test token access
-curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user
-
-# Test runner API access
-curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/OWNER/REPO/actions/runners/registration-token
+sudo ./config/setup_appletalk.sh
+sudo systemctl start netatalk
+sudo systemctl start jrouter
 ```
 
-If you get a 404 error on the runner API test, your token doesn't have the required permissions.
+## Docker Configuration
 
-## Architecture
+This repository previously contained Docker-based GitHub Actions runners, but these have been moved to the [blakeports](https://github.com/your-org/blakeports) repository under `docker/github-runners/` to consolidate all GitHub Actions runner functionality.
 
-This setup uses a two-stage approach:
+## Makefile Targets
 
-1. **Build Time**: The `runner-build-container.sh` script builds a custom Docker image with:
-   - Ubuntu 24.04 base image (ARM64 native for macOS)
-   - All required dependencies (curl, git, jq, etc.)
-   - GitHub Actions runner binary (latest version)
-   - HashiCorp repository for additional tools
-
-2. **Runtime**: Docker Compose starts containers that:
-   - Configure the runner with your GitHub repository
-   - Start the runner service
-   - Handle scaling and management
-
-## Benefits of This Approach
-
-- **Fast Startup**: Dependencies are pre-installed in the image
-- **Consistent Environment**: Same base image for all runners
-- **Easy Scaling**: Use `--scale` to run multiple runners
-- **Version Control**: Runner version is locked at build time
-- **Additional Tools**: HashiCorp tools (Terraform, Consul, etc.) available
-- **Native Performance**: ARM64 containers on ARM64 hosts
-
-## Container Build Script (runner-build-container.sh)
-
-This script handles the complete Docker image build process:
-
-### Features
-- **Host Architecture Detection**: Automatically detects ARM64 (macOS) or x86_64 (Linux) hosts
-- **Platform-Specific Builds**: Builds native containers for your host architecture
-- **Latest Runner Version**: Automatically fetches and installs the latest GitHub Actions runner
-- **Repository Configuration**: Adds HashiCorp repository for additional tools
-- **Build Optimization**: Uses Docker layer caching and provides build options
-
-### Usage Examples
+The repository now uses a Makefile for VM management. Available targets:
 
 ```bash
-# Basic build
-./runner-build-container.sh
-
-# Force rebuild (no cache)
-./runner-build-container.sh --force
-
-# Custom image name and tag
-./runner-build-container.sh --image-name my-runner --tag v1.0
-
-# Build with no cache
-./runner-build-container.sh --no-cache
-
-# Show help
-./runner-build-container.sh --help
+make help          # Show help message
+make build         # Build and start the macsl VM with latest Ubuntu image
+make rebuild       # Factory reset and rebuild the macsl VM
+make test-vm       # Create isolated macsl-test VM for development
+make clean         # Stop and remove the macsl VM
+make clean-test    # Stop and remove the macsl-test VM
+make status        # Show status of both VMs
+make shell         # Open shell in the macsl VM
+make test-shell    # Open shell in the macsl-test VM
+make logs          # Show logs for the macsl VM
 ```
 
-## Scaling Runners
+### Test VM Features
 
-Docker Compose makes scaling simple. Each runner gets a unique name:
-
-```bash
-# Start 1 runner
-docker-compose up -d
-
-# Start 3 runners (each with unique hostname-based suffix)
-docker-compose up -d --scale github-runner=3
-
-# Start 6 runners (each with unique hostname-based suffix)
-docker-compose up -d --scale github-runner=6
-
-# Scale down to 2 runners (keeps containers 1 and 2)
-docker-compose up -d --scale github-runner=2
-```
-
-**Runner Naming Convention**: `runner-docker-ubuntu-noble-<HOSTNAME_SUFFIX>`
-- Each scaled instance gets a unique 8-character hex suffix from its container hostname
-- Example names: `runner-docker-ubuntu-noble-1d1fcad1`, `runner-docker-ubuntu-noble-25aea1d9`
-- Runner names are unique and automatically generated for each container
-
-## Management
-
-### View running containers
-```bash
-docker-compose ps
-```
-
-### View logs
-```bash
-# All runners
-docker-compose logs -f
-
-# Specific runner (by container name)
-docker logs macsl-github-runner-1
-```
-
-### Stop all runners
-```bash
-docker-compose down
-```
-
-### Update runners
-```bash
-docker-compose down
-./runner-build-container.sh --force
-docker-compose up -d --scale github-runner=6
-```
-
-### Clean up runners manually
-```bash
-# List all runners in your repository
-./runner-cleanup.sh list
-
-# Remove offline runners only
-./runner-cleanup.sh remove-offline
-
-# Remove ALL runners (with confirmation)
-./runner-cleanup.sh remove-all
-```
-
-## Troubleshooting
-
-### Check runner status
-```bash
-./runner-cleanup.sh list
-```
-
-### View runner logs
-```bash
-docker logs macsl-github-runner-1
-```
-
-### Test runner connectivity
-```bash
-# Check if a specific runner is connected
-docker exec macsl-github-runner-1 ps aux | grep Runner.Listener
-```
-
-## Security Considerations
-
-- The containers run with privileged access for Docker-in-Docker support
-- Docker socket is mounted read-only
-- Each runner has its own volume for data isolation
-- Consider using Docker secrets for sensitive data in production
+The `make test-vm` target creates a separate development VM with:
+- **Isolated environment**: Won't interfere with production macsl VM
+- **Different SSH port** (6667 instead of 6666)
+- **Reduced resources**: 4 CPUs, 8GB RAM, 50GB disk (vs 6 CPUs, 16GB RAM, 100GB disk)
+- **Separate name**: `macsl-test` instead of `macsl`
+- **Auto-cleanup**: Use `make clean-test` to remove when done
 
 ## File Structure
 
 ```
 .
-├── docker-compose.yml              # Main Docker Compose configuration
-├── Dockerfile                      # Container image definition
-├── runner-setup.sh                 # Runner configuration script
-├── runner-build-container.sh       # Container build script
-├── runner-cleanup.sh               # Manual runner cleanup script
-├── env.example                     # Environment variables template
-└── README.md                       # This file
+├── Makefile                       # VM management targets
+├── scripts/                       # Build and management scripts
+│   ├── build.sh                   # VM build script
+│   ├── rebuild.sh                 # VM rebuild script
+│   └── test-vm.sh                 # Test VM creation script
+├── config/                        # Configuration files
+│   ├── afp.conf                   # AFP configuration
+│   ├── atalkd.conf                # AppleTalk daemon config
+│   ├── netatalk.service           # Netatalk systemd service
+│   ├── atalkd.service             # atalkd systemd service
+│   ├── jrouter.service            # JRouter systemd service
+│   ├── jrouter.yaml               # JRouter configuration
+│   ├── setup_appletalk.sh         # AppleTalk setup script
+│   ├── setup_jrouter.sh           # JRouter setup script
+│   └── setup_vmware.sh            # VMware setup script
+├── macsl.yaml                     # Main VM configuration file
+└── README.md                      # This file
 ```
+
+## Requirements
+
+- Linux system with systemd
+- Netatalk package
+- Root/sudo access for service installation
+
+## Installation
+
+### Using the Setup Script
+
+The easiest way to install is using the provided setup script:
+
+```bash
+sudo ./config/setup_appletalk.sh
+```
+
+This script will:
+- Install required packages
+- Copy configuration files
+- Enable and start services
+- Configure firewall rules
+
+### Manual Installation
+
+1. **Install Netatalk:**
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get install netatalk
+
+   # CentOS/RHEL
+   sudo yum install netatalk
+   ```
+
+2. **Copy configuration files:**
+   ```bash
+   sudo cp config/afp.conf /etc/netatalk/
+   sudo cp config/atalkd.conf /etc/netatalk/
+   ```
+
+3. **Install systemd services:**
+   ```bash
+   sudo cp config/netatalk.service /etc/systemd/system/
+   sudo cp config/atalkd.service /etc/systemd/system/
+   sudo systemctl daemon-reload
+   ```
+
+4. **Start services:**
+   ```bash
+   sudo systemctl enable netatalk
+   sudo systemctl start netatalk
+   ```
+
+## Configuration
+
+### AFP (Apple Filing Protocol)
+
+Edit `/etc/netatalk/afp.conf` to configure file sharing:
+
+```ini
+[Global]
+; Global server settings
+
+[Homes]
+; User home directories
+
+[Shared]
+; Shared directory
+path = /path/to/shared/directory
+```
+
+### AppleTalk
+
+The AppleTalk configuration in `/etc/netatalk/atalkd.conf` defines network settings:
+
+```bash
+# AppleTalk network configuration
+eth0 -phase 2 -net 0-65534 -addr 65280.166
+```
+
+## Troubleshooting
+
+### Check Service Status
+
+```bash
+sudo systemctl status netatalk
+sudo systemctl status atalkd
+```
+
+### View Logs
+
+```bash
+journalctl -u netatalk -f
+journalctl -u atalkd -f
+```
+
+### Network Testing
+
+Test AppleTalk connectivity:
+
+```bash
+# List AppleTalk networks
+nbplkup
+
+# Test AFP connection
+afp_client -l
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+See LICENSE file for details.
+
+## Related Projects
+
+- [blakeports](https://github.com/your-org/blakeports) - MacPorts development repository (contains moved GitHub Actions runners)
+- [netatalk](https://github.com/Netatalk/netatalk) - Netatalk project repository
