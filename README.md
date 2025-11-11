@@ -1,6 +1,6 @@
 # MacSL - Lima VM for macOS Development
 
-MacSL provides a streamlined Lima-based Linux virtual machine setup optimized for macOS development workflows. Uses Lima's default instance for seamless integration.
+MacSL provides a streamlined Lima-based Linux virtual machine setup optimized for hosting docker containers macOS
 
 ## Quick Start
 
@@ -21,7 +21,7 @@ MacSL provides a streamlined Lima-based Linux virtual machine setup optimized fo
 ## Requirements
 
 - **macOS** (Intel or Apple Silicon)
-- **Lima** - Install via Homebrew: `brew install lima`
+- **Lima** - Install via macports: `sudo port install lima`
 - **wget** - For downloading VM images
 
 ## Available Commands
@@ -50,19 +50,22 @@ limactl list      # List all instances
 
 The VM is configured via `lima.yaml` and runs as Lima's default instance:
 
-- **Ubuntu 24.04 LTS** (Noble Numbat)
-- **Resources**: 4 CPUs, 8GB RAM, 50GB disk
-- **SSH access** on port 6667
+- **Ubuntu Questing** (development release, ARM64/x86_64)
+- **Resources**: 8 CPUs, 16GB RAM, 100GB disk
+- **SSH access** on port 6666
+- **VM Type**: Apple Virtualization (VZ)
+- **Network**: NAT with VZ networking
 - **Automatic file sharing** with macOS host
-- **Docker support** with rootless configuration
+- **Docker support** with rootful configuration
 - **Development tools** via chezmoi dotfiles
 
 ### Key Features
 
-- **Automatic image updates**: Always uses latest Ubuntu ARM64/x86_64 images
+- **Automatic image updates**: Always uses latest Ubuntu Questing ARM64/x86_64 images
 - **Host integration**: Access host directories and Docker
 - **Login auto-start**: VM starts automatically on login
 - **Rosetta support**: Intel emulation on Apple Silicon
+- **SSH key loading**: Automatic loading of SSH public keys
 
 ### Directory Mounts
 
@@ -74,21 +77,21 @@ The VM is configured via `lima.yaml` and runs as Lima's default instance:
 
 The VM includes automatic Docker installation with:
 
-- **Rootful Docker** with user access configuration
+- **Rootful Docker** with socket forwarding to macOS
 - **Host socket forwarding** for macOS Docker CLI access
 - **Service management** with systemd
 
 ### Using Docker from macOS
 
-After VM setup, configure Docker context:
+After VM setup, the Lima startup message will show the exact commands to run. Copy and execute the Docker context commands from the message:
 
 ```bash
-docker context create lima --docker "host=unix://~/.lima/default/sock/docker.sock"
+# Commands shown in VM startup (example):
+docker context create lima --docker "host=unix:///Users/blake/.lima/default/sock/docker.sock"
 docker context use lima
 docker run --rm hello-world
 ```
 
-**Note:** If Docker commands fail, you may need to use `sudo` in the VM initially, or rebuild the VM after the configuration updates.
 
 ## Customization
 
@@ -126,7 +129,7 @@ limactl show-ssh       # Get SSH details
 
 ### Common Issues
 
-- **Port conflicts**: Change SSH port in `lima.yaml` if 6667 is in use
+- **Port conflicts**: Change SSH port in `lima.yaml` if 6666 is in use
 - **Permission issues**: Ensure Lima has proper macOS permissions
 - **Network issues**: Check Virtualization framework settings in macOS
 - **VM not found**: Run `make build` to create the VM first
@@ -140,7 +143,3 @@ limactl show-ssh       # Get SSH details
 ├── LICENSE            # License information
 └── README.md          # This documentation
 ```
-
-## License
-
-See LICENSE file for details.
