@@ -1,4 +1,3 @@
-# https://github.com/lima-vm/lima/blob/master/examples/default.yaml
 vmType: "vz"
 images:
 - location: "https://cloud-images.ubuntu.com/questing/current/questing-server-cloudimg-arm64.img"
@@ -6,9 +5,9 @@ images:
 - location: "https://cloud-images.ubuntu.com/questing/current/questing-server-cloudimg-amd64.img"
   arch: "x86_64"
 
-cpus: 4
-memory: 8GiB
-disk: 50GiB
+cpus: 8
+memory: 16GiB
+disk: 100GiB
 
 mountType: "virtiofs"
 mounts:
@@ -30,7 +29,7 @@ networks:
   metric: 250
 
 ssh:
-  localPort: 6667
+  localPort: 6666
   loadDotSSHPubKeys: true
 
 video:
@@ -52,9 +51,28 @@ provision:
 - mode: system
   script: |
     #!/bin/bash
-    command -v docker >/dev/null 2>&1 && exit 0
+    set -e
+    echo "Installing Docker..."
+    if command -v docker >/dev/null 2>&1; then
+        echo "Docker already installed"
+        exit 0
+    fi
+
     export DEBIAN_FRONTEND=noninteractive
     curl -fsSL https://get.docker.com | sh
+    echo "Docker installed successfully"
+    systemctl enable docker
+    systemctl start docker
+    echo "Docker service started"
+
+    # Ensure Docker socket has proper permissions for Lima forwarding
+    sleep 2
+    if [ -S /var/run/docker.sock ]; then
+        chmod 666 /var/run/docker.sock
+        echo "Docker socket permissions set for forwarding"
+    else
+        echo "Warning: Docker socket not found at /var/run/docker.sock"
+    fi
 
 - mode: user
   script: |
@@ -68,12 +86,13 @@ hostResolver:
 portForwards:
 #- guestPortRange: [ 1, 65535 ]
 #  hostIP: 0.0.0.0
-- guestSocket: "/run/user/{{.UID}}/docker.sock"
+- guestSocket: "/var/run/docker.sock"
   hostSocket: "{{.Dir}}/sock/docker.sock"
+
 message: |
   To run `docker` on the host (assumes docker-cli is installed), run the following commands:
   ------
-  docker context create lima-macsl-test --docker "host=unix://{{.Dir}}/sock/docker.sock"
-  docker context use lima-macsl-test
+  docker context create lima --docker "host=unix://{{.Dir}}/sock/docker.sock"
+  docker context use lima
   docker run --rm -ti --platform linux/amd64 ubuntu:latest
   ------
