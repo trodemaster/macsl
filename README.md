@@ -1,4 +1,4 @@
-# MacSL - Lima VM for macOS Development
+# MacSL - Lima VM for linux services on macOS
 
 MacSL provides a streamlined Lima-based Linux virtual machine setup optimized for hosting docker containers macOS
 
