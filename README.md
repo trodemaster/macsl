@@ -2,26 +2,11 @@
 
 MacSL provides a streamlined Lima-based Linux virtual machine setup optimized for hosting docker containers macOS
 
-## Quick Start
-
-1. **Clone and build:**
-   ```bash
-   git clone https://github.com/your-org/macsl.git
-   cd macsl
-   make build
-   ```
-
-2. **Access the VM:**
-   ```bash
-   make shell
-   # Or use Lima's shorthand:
-   lima
-   ```
-
 ## Requirements
 
 - **macOS** (Intel or Apple Silicon)
-- **Lima** - https://lima-vm.io 
+- **Lima** - https://lima-vm.io
+- **Docker** -  Install via package manager
 
 ## Available Commands
 
