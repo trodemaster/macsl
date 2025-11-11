@@ -21,8 +21,7 @@ MacSL provides a streamlined Lima-based Linux virtual machine setup optimized fo
 ## Requirements
 
 - **macOS** (Intel or Apple Silicon)
-- **Lima** - Install via macports: `sudo port install lima`
-- **wget** - For downloading VM images
+- **Lima** - https://lima-vm.io 
 
 ## Available Commands
 
