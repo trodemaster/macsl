@@ -18,10 +18,6 @@ mounts:
 - location: "{{.Home}}/scratch"
   writable: true
 
-rosetta:
-  enabled: true
-  binfmt: true
-
 timezone: "America/Los_Angeles"
 
 networks:
@@ -33,10 +29,10 @@ ssh:
   loadDotSSHPubKeys: true
 
 video:
-  display: "vz"
+  display: none
 
-# audio:
-#   enabled: vz
+audio:
+  device: none
 
 containerd:
   system: false
