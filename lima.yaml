@@ -11,7 +11,7 @@ disk: 100GiB
 
 mountType: "virtiofs"
 mounts:
-- location: "{{.Home}}/code"
+- location: "{{.Home}}/Developer"
   writable: true
 - location: "{{.Home}}/Downloads"
   writable: true
@@ -57,6 +57,7 @@ provision:
     export DEBIAN_FRONTEND=noninteractive
     curl -fsSL https://get.docker.com | sh
     echo "Docker installed successfully"
+    usermod -aG docker blake
     systemctl enable docker
     systemctl start docker
     echo "Docker service started"
@@ -80,8 +81,8 @@ hostResolver:
     host.docker.internal: host.lima.internal
 
 portForwards:
-#- guestPortRange: [ 1, 65535 ]
-#  hostIP: 0.0.0.0
+- guestPortRange: [ 1000, 65535 ]
+  hostIP: 0.0.0.0
 - guestSocket: "/var/run/docker.sock"
   hostSocket: "{{.Dir}}/sock/docker.sock"
 

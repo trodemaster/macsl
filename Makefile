@@ -36,7 +36,7 @@ rebuild: ## Factory reset and rebuild the Lima VM
 	@echo "Rebuilding Lima VM..."
 	@if launchctl list 2>/dev/null | grep -q "launchd_docker"; then \
 		echo "Stopping launchd_docker service..."; \
-		launchctl bootout gui/$$(id -u) ~/code/machine-cfg/$$(hostname -s)/launchd_docker.plist 2>/dev/null || true; \
+		launchctl bootout gui/$$(id -u) ~/Developer/machine-cfg/$$(hostname -s)/launchd_docker.plist 2>/dev/null || true; \
 		echo "launchd_docker stopped."; \
 	fi
 	@echo "Factory resetting VM..."
